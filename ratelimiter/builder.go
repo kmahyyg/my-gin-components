@@ -7,12 +7,11 @@ import (
 	ramlimitstore "github.com/ulule/limiter/v3/drivers/store/memory"
 )
 
-// RateLimiterBuild parse user input limit string and then return middleware of gin
+// LimiterBuild parse user input limit string and then return middleware of gin
 // by default, it uses in-memory store
 // @param lmt: by default, use 200 reqs/minute, "200-M", string
-// @return middleware: gin.HandlerFunc
-func RateLimiterBuild(lmt string, bizName string) gin.HandlerFunc {
-	//
+// @return middleware: gin.HandlerFunc, trust X-Real-IP and X-Forwarded-For
+func LimiterBuild(lmt string, bizName string) gin.HandlerFunc {
 	rate, err := limiter.NewRateFromFormatted(lmt)
 	if err != nil {
 		panic(err)
