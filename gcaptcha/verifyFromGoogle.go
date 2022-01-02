@@ -47,9 +47,9 @@ func (gcvf *GCaptchaVerifierFactory) GetVerifier() (*gRecaptchaVerifier,error) {
 // @param thres: threshold, smaller than this value will be interpreted as Bot and get banned.
 // @param inChina: China Mainland should set this value to true.
 // @param siteSecret: Google ReCaptcha Verifier
-func (gcvf *GCaptchaVerifierFactory) BuildVerifier(conf common_conf.ReCaptchaConfig) (*gRecaptchaVerifier,error) {
+func (gcvf *GCaptchaVerifierFactory) BuildVerifier(conf common_conf.ReCaptchaConfig) {
 	if conf.Threshold > float32(1.0) || conf.Threshold <= float32(0.0) {
-		return nil, ErrInvalidThreshold
+		panic(ErrInvalidThreshold)
 	}
 	var siteEndP = "https://www.google.com/recaptcha/api/siteverify"
 	if conf.InChina {
@@ -63,7 +63,6 @@ func (gcvf *GCaptchaVerifierFactory) BuildVerifier(conf common_conf.ReCaptchaCon
 		domainName: 	 conf.DomainName,
 	}
 	gcvf.isBuilt = true
-	return gcvf.verifier, nil
 }
 
 // ResetVerifier works if any config went wrong, this function will set gRecaptchaVerifier to nil in Factory.

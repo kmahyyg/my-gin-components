@@ -13,6 +13,7 @@ type WebConfig struct {
 	ListenOn string `json:"listen"`
 	Environment string `json:"environ"`   // prod OR dev
 	DomainName string `json:"domain"`
+	BizName string `json:"bizname"`
 }
 
 type ReCaptchaConfig struct {
