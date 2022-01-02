@@ -1,4 +1,4 @@
-package ratelimiter
+package mem_ratelimiter
 
 import (
 	"github.com/gin-gonic/gin"
