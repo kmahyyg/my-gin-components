@@ -3,14 +3,15 @@ package gcaptcha
 import (
 	"encoding/json"
 	"errors"
+	"github.com/kmahyyg/my-gin-components/common-conf"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
-	"github.com/kmahyyg/my-gin-components/common-conf"
 )
 
 var (
+	ErrVerifierNotBuilt = errors.New("verifier is not built yet")
 	ErrNotAHuman = errors.New("parse google response success but not meet the requirement of human threshold")
 	ErrInvalidThreshold = errors.New("invalid threshold, should >0.0 and <=1.0")
 	ErrCannotVerify = errors.New("verification to Google Server Failed. Check site secret is corresponding to your domain or network connection")
@@ -37,12 +38,16 @@ type GCaptchaVerifierFactory struct {
 	verifier *gRecaptchaVerifier
 }
 
-// GetVerifier return a singleton of gRecaptchaVerifier
+func (gcvf *GCaptchaVerifierFactory) GetVerifier() (*gRecaptchaVerifier,error) {
+	if gcvf.isBuilt && gcvf.verifier != nil {return gcvf.verifier, nil}
+	return nil, ErrVerifierNotBuilt
+}
+
+// BuildVerifier return a singleton of gRecaptchaVerifier
 // @param thres: threshold, smaller than this value will be interpreted as Bot and get banned.
 // @param inChina: China Mainland should set this value to true.
 // @param siteSecret: Google ReCaptcha Verifier
-func (gcvf *GCaptchaVerifierFactory) GetVerifier(conf common_conf.ReCaptchaConfig) (*gRecaptchaVerifier,error) {
-	if gcvf.isBuilt && gcvf.verifier != nil {return gcvf.verifier, nil}
+func (gcvf *GCaptchaVerifierFactory) BuildVerifier(conf common_conf.ReCaptchaConfig) (*gRecaptchaVerifier,error) {
 	if conf.Threshold > float32(1.0) || conf.Threshold <= float32(0.0) {
 		return nil, ErrInvalidThreshold
 	}

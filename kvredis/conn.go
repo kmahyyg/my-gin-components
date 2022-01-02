@@ -7,13 +7,16 @@ import (
 	"context"
 )
 
+var (
+	ErrRedisClientNoBuilt = errors.New("redis client is not built yet")
+)
+
 type RedisConnectionFactory struct {
 	isBuilt bool
 	rClient *redis.Client
 }
 
-func (rcf *RedisConnectionFactory) GetRedisConn(conf common_conf.RedisConfig) (*redis.Client,error) {
-	if rcf.isBuilt && rcf.rClient != nil {return rcf.rClient,nil}
+func (rcf *RedisConnectionFactory) BuildRedisConn(conf common_conf.RedisConfig){
 	rcf.rClient = redis.NewClient(&redis.Options{
 		Addr:       conf.Addr,
 		Username:   conf.Username,
@@ -22,9 +25,16 @@ func (rcf *RedisConnectionFactory) GetRedisConn(conf common_conf.RedisConfig) (*
 		MaxRetries: 5,
 	})
 	err := rcf.CheckRedisConn()
-	if err != nil {return nil, err}
+	if err != nil {panic(err)}
 	rcf.isBuilt = true
-	return rcf.rClient, nil
+}
+
+func (rcf *RedisConnectionFactory) GetRedisConn() (*redis.Client,error) {
+	if rcf.isBuilt && rcf.rClient != nil {
+		err := rcf.CheckRedisConn()
+		return rcf.rClient, err
+	}
+	return nil, ErrRedisClientNoBuilt
 }
 
 func (rcf *RedisConnectionFactory) CheckRedisConn() error {
