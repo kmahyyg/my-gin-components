@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"github.com/kmahyyg/my-gin-components/common-conf"
 )
 
 var (
@@ -40,20 +41,21 @@ type GCaptchaVerifierFactory struct {
 // @param thres: threshold, smaller than this value will be interpreted as Bot and get banned.
 // @param inChina: China Mainland should set this value to true.
 // @param siteSecret: Google ReCaptcha Verifier
-func (gcvf *GCaptchaVerifierFactory) GetVerifier(thres float32, inChina bool, siteSecret string, domainName string) (*gRecaptchaVerifier,error) {
-	if thres > float32(1.0) || thres <= float32(0.0) {
+func (gcvf *GCaptchaVerifierFactory) GetVerifier(conf common_conf.ReCaptchaConfig) (*gRecaptchaVerifier,error) {
+	if gcvf.isBuilt && gcvf.verifier != nil {return gcvf.verifier, nil}
+	if conf.Threshold > float32(1.0) || conf.Threshold <= float32(0.0) {
 		return nil, ErrInvalidThreshold
 	}
 	var siteEndP = "https://www.google.com/recaptcha/api/siteverify"
-	if inChina {
+	if conf.InChina {
 		siteEndP = "https://recaptcha.net/recaptcha/api/siteverify"
 	}
 	gcvf.verifier = &gRecaptchaVerifier{
-		threshold:       thres,
-		inChinaMainland: inChina,
-		siteSecret:      siteSecret,
+		threshold:       conf.Threshold,
+		inChinaMainland: conf.InChina,
+		siteSecret:      conf.Secret,
 		verifyEndpoint:  siteEndP,
-		domainName: 	 domainName,
+		domainName: 	 conf.DomainName,
 	}
 	gcvf.isBuilt = true
 	return gcvf.verifier, nil
