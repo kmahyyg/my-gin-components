@@ -37,3 +37,17 @@ type TLSConfig struct {
 	CertPath string `json:"cert_path,omitempty"`
 	KeyPath  string `json:"key_path,omitempty"`
 }
+
+type GRPCConfig struct {
+	RegistryAddr      string `json:"registry_addr"`
+	PublicKey         string `json:"pubkey"`            // ed25519, in base64
+	PrivateKey        string `json:"privkey,omitempty"` // ed25519, in base64
+	Role              int    `json:"role"`              // server = 0 or worker = 1
+	HeartBeatInterval int    `json:"heartbeat"`
+}
+
+type WorkPoolConfig struct {
+	MaxJobsInParallel int `json:"max_parallel"`
+	MaxQueueSize      int `json:"max_queue"`
+	MaxSingleNodeJobs int `json:"max_node"`
+}
